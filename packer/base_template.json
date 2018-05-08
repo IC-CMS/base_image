@@ -1,0 +1,132 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "aws_session_token": "",
+    "aws_source_image": "",
+    "aws_region": "",
+    "aws_zone": "",
+    "aws_security_group": "",
+    "aws_vpc_id": "",
+    "aws_subnet_id": "",
+    "aws_endpoint": "",
+    "source_ami_owner": "",
+    "source_name_filter": "",
+    "bot_user_pass": "",
+    "bot_user_name": "",
+    "new_image_name": "DNA_Base",
+    "newuser_name": "",
+    "newuser_pass": "",
+    "open_flavor": "",
+    "open_region": "",
+    "open_source_image": "",
+    "open_tenant_name": "",
+    "id_endpoint": "",
+    "temp_floating_ip": ""
+
+  },
+  "builders": [{
+    "name": "aws_builder",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "token": "{{user `aws_session_token`}}",
+    "security_group_id": "{{user `aws_security_group`}}",
+    "vpc_id": "{{user `aws_vpc_id`}}",
+    "subnet_id": "{{user `aws_subnet_id`}}",
+    "type": "amazon-ebs",
+    "ami_name": "{{user `new_image_name`}}_{{isotime | clean_ami_name}}",
+    "instance_type": "t2.micro",
+    "region": "{{user `aws_region`}}",
+    "availability_zone": "{{user `aws_zone`}}",
+    "source_ami": "{{user `aws_source_image`}}",
+    "ssh_username": "{{user `bot_user_name`}}",
+    "ssh_password": "{{user `bot_user_pass`}}",
+    "ssh_timeout": "10m",
+    "ssh_handshake_attempts": "50",
+    "tags": {
+      "internal": "base_{{isotime | clean_ami_name}}",
+      "nostartup": "true"
+    },
+    "source_ami_filter": {
+      "filters": {
+        "name": "{{user `source_name_filter`}}"
+      },
+      "owners": ["{{user `source_ami_owner`}}"],
+      "most_recent": true
+    }
+  },
+    {
+      "name": "aws2_builder",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "token": "{{user `aws_session_token`}}",
+      "security_group_id": "{{user `aws_security_group`}}",
+      "vpc_id": "{{user `aws_vpc_id`}}",
+      "subnet_id": "{{user `aws_subnet_id`}}",
+      "type": "amazon-ebs",
+      "ami_name": "{{user `new_image_name`}}_{{isotime | clean_ami_name}}",
+      "instance_type": "t2.micro",
+      "region": "{{user `aws_region`}}",
+      "availability_zone": "{{user `aws_zone`}}",
+      "associate_public_ip_address": true,
+      "source_ami": "{{user `aws_source_image`}}",
+      "ssh_username": "{{user `newuser_name`}}",
+      "skip_region_validation": "true",
+      "custom_endpoint_ec2": "{{user `aws_endpoint`}}",
+      "tags": {
+        "internal": "base_{{isotime | clean_ami_name}}"
+      },
+      "source_ami_filter": {
+        "filters": {
+          "name": "{{user `source_name_filter`}}"
+        },
+        "owners": ["{{user `source_ami_owner`}}"],
+        "most_recent": true
+      }
+    },
+    {
+      "name": "open_builder",
+      "username": "{{user `bot_user_name`}}",
+      "password": "{{user `bot_user_pass`}}",
+      "type": "openstack",
+      "image_name": "{{user `new_image_name`}}_{{isotime}}",
+      "flavor": "{{user `open_flavor`}}",
+      "region": "{{user `open_region`}}",
+      "source_image": "{{user `open_source_image`}}",
+      "identity_endpoint": "{{user `id_endpoint`}}",
+      "tenant_name": "{{user `open_tenant_name`}}",
+      "ssh_username": "{{user `newuser_name`}}",
+      "ssh_password": "{{user `newuser_pass`}}",
+      "ssh_pty": true,
+      "cacert": "{{user `cert_location`}}",
+      "floating_ip": "{{user `temp_floating_ip`}}"
+    }],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./provisions",
+      "destination": "/tmp"
+    },
+    {
+      "type": "shell",
+      "inline": ["echo ***************************** Preparing Base Image *********************************",
+        "echo ********************************* Creating newuser ************************************",
+        "cd /tmp/provisions/scripts",
+        "sudo chmod +x *",
+        "./create_newuser.sh {{user `newuser_pass`}}",
+        "echo ********************************* Freezing Instance ***********************************",
+        "./freeze_aws.sh",
+        "echo ********************************* Yum Update ******************************************",
+        "sudo yum clean all -y",
+        "sudo yum update -y",
+        "echo ********************************* Installing Docker ***********************************",
+        "./install_docker_aws.sh /tmp/provisions",
+        "echo ********************************* Installing FluentD **********************************",
+        "./install_fluentd.sh /tmp/provisions",
+        "echo ********************************* Install Consul Template *****************************",
+        "./install_consul_template_aws.sh /tmp/provisions",
+        "echo ********************************* COMPLETED Base Image *********************************"
+      ]
+    }
+  ]
+}

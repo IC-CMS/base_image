@@ -77,9 +77,12 @@ echo "Variables file    : ${VARIABLES}"
 echo "Using Trust arg   : ${ADD_TRUST}"
 echo " "
 
+#Add cert to the docker run command if necessary
+#TODO on-error should be changed to 'cleanup' for production
 sudo docker run -it \
     --name baseBuilder \
     --env-file=docker.env \
+    --log-driver=none \
     -v $(pwd):/tmp/base \
     ${ADD_TRUST} \
     -w /tmp/base \
@@ -88,6 +91,7 @@ sudo docker run -it \
         -only=${BUILD_NAME} \
         -var-file=${CREDENTIALS} \
         -var-file=${VARIABLES} \
+        -on-error=ask \
         ${TEMPLATE}
 
 sudo docker rm baseBuilder

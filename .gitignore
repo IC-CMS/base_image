@@ -1,3 +1,6 @@
+packer_var_pac.json
+.idea/
+
 # Cache objects
 packer_cache/
 
