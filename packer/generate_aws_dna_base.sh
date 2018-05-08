@@ -32,7 +32,7 @@ echo "ROLE_NAME - ${ROLE_NAME}"
 ./aws_credentials.sh    $ROLE_NAME
 
 #Build the packer machine image
-./build-image.sh    -b aws_builder -v packer_var_aws.json
+./build-image.sh    -b aws_builder -v packer_var_pac.json
 
 #Remove certs now that we're done
 rm -f packer_credentials.json

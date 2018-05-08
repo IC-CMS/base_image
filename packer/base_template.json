@@ -42,7 +42,7 @@
     "ssh_username": "{{user `bot_user_name`}}",
     "ssh_password": "{{user `bot_user_pass`}}",
     "ssh_timeout": "10m",
-    "ssh_handshake_attempts": "50",
+    "ssh_handshake_attempts": "10",
     "tags": {
       "internal": "base_{{isotime | clean_ami_name}}",
       "nostartup": "true"
@@ -125,6 +125,8 @@
         "./install_fluentd.sh /tmp/provisions",
         "echo ********************************* Install Consul Template *****************************",
         "./install_consul_template_aws.sh /tmp/provisions",
+        "echo ********************************* Removing temp files *********************************",
+        "cd / && sudo rm -Rf /tmp/provisions/",
         "echo ********************************* COMPLETED Base Image *********************************"
       ]
     }

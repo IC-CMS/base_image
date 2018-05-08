@@ -16,6 +16,7 @@ DOCKER_DAEMON='/etc/docker/daemon.json'
 
 #Move config for the Docker driver for Fluent
 sudo cp -f ${RESOURCES}${DOCKER_DAEMON} ${DOCKER_DAEMON}
+sudo cp -f ${RESOURCES}${FLUENT_CONFIG} ${FLUENT_CONFIG}
 
 #This is a new instance. Should never be a fluentd running
 #sudo docker stop fluentd || true && sudo docker rm fluentd || true
@@ -26,7 +27,7 @@ sudo docker run -d \
     --log-driver none \
     --cpus=".1" \
     --restart always \
-    -v ${RESOURCES}${FLUENT_CONFIG}:${FLUENT_CONFIG}:ro \
+    -v ${FLUENT_CONFIG}:${FLUENT_CONFIG}:ro \
     -v /var/log/:/tmp/log/ \
     fluent/fluent-bit:0.12.11 /fluent-bit/bin/fluent-bit \
     -c /etc/fluent/fluent-bit.conf
