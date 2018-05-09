@@ -4,15 +4,18 @@
 
 if [ $# -eq 0 ]
     then
-        RESOURCES='tmp/provisions/resources'
+        RESOURCES='/tmp/provisions/resources'
         echo 'no argument supplied, using directory /tmp/provisions'
     else
         RESOURCES=$1'/resources'
 fi
 
-RESOURCES=$1'/resources'
-FLUENT_CONFIG='/etc/fluent/fluent-bit.conf'
+FLUENT_CONFIG='/etc/fluent/fluentbit.conf'
 DOCKER_DAEMON='/etc/docker/daemon.json'
+
+set +e
+sudo mkdir -m 0755 /etc/fluent
+set -e
 
 #Move config for the Docker driver for Fluent
 sudo cp -f ${RESOURCES}${DOCKER_DAEMON} ${DOCKER_DAEMON}
@@ -30,4 +33,4 @@ sudo docker run -d \
     -v ${FLUENT_CONFIG}:${FLUENT_CONFIG}:ro \
     -v /var/log/:/tmp/log/ \
     fluent/fluent-bit:0.12.11 /fluent-bit/bin/fluent-bit \
-    -c /etc/fluent/fluent-bit.conf
+    -c ${FLUENT_CONFIG}

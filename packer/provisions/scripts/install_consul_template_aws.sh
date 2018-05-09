@@ -4,7 +4,7 @@
 
 if [ $# -eq 0 ]
     then
-        RESOURCES='tmp/provisions/resources'
+        RESOURCES='/tmp/provisions/resources'
         echo 'no argument supplied, using directory /tmp/provisions'
     else
         RESOURCES=$1'/resources'

@@ -4,13 +4,12 @@
 
 if [ $# -eq 0 ]
     then
-        RESOURCES='tmp/provisions/resources'
+        RESOURCES='/tmp/provisions/resources'
         echo 'no argument supplied, using directory /tmp/provisions'
     else
         RESOURCES=$1'/resources'
 fi
 
-RESOURCES=$1'/resources'
 DOCKER_CONFIG='/root/.docker/config.json'
 
 #Install config file
